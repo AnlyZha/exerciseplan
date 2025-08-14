@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跑步训练计划打卡系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            padding: 20px;
+        }
+        
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* 左侧导航 */
+        .sidebar {
+            width: 280px;
+            background: rgba(10, 15, 35, 0.85);
+            padding: 30px 20px;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .logo p {
+            color: #8c9eff;
+            font-size: 0.9rem;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin: 8px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #e0e0e0;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background: rgba(41, 98, 255, 0.2);
+            color: #64b5f6;
+        }
+        
+        .nav-item i {
+            margin-right: 12px;
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .progress-container {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+        }
+        
+        .progress-title {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #64b5f6;
+        }
+        
+        .progress-bar {
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            border-radius: 10px;
+            width: 35%;
+        }
+        
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #bbdefb;
+        }
+        
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .week-title {
+            font-size: 2.2rem;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .week-nav {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .nav-btn {
+            padding: 10px 20px;
+            background: rgba(41, 98, 255, 0.3);
+            border: 1px solid rgba(100, 181, 246, 0.5);
+            border-radius: 30px;
+            color: #bbdefb;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(41, 98, 255, 0.5);
+        }
+        
+        /* 训练卡片 */
+        .training-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .day-card {
+            background: rgba(20, 30, 60, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(100, 181, 246, 0.2);
+        }
+        
+        .day-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+            border-color: rgba(100, 181, 246, 0.4);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(100, 181, 246, 0.3);
+        }
+        
+        .day-title {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #64b5f6;
+        }
+        
+        .day-type {
+            background: rgba(41, 98, 255, 0.3);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #bbdefb;
+        }
+        
+        .training-block {
+            display: flex;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+        
+        .training-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(41, 98, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: #64b5f6;
+            font-size: 1.2rem;
+        }
+        
+        .training-details {
+            flex: 1;
+        }
+        
+        .training-time {
+            font-weight: 600;
+            color: #64b5f6;
+            margin-bottom: 5px;
+        }
+        
+        .training-desc {
+            color: #e0e0e0;
+            line-height: 1.5;
+        }
+        
+        .check-container {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px dashed rgba(100, 181, 246, 0.3);
+        }
+        
+        .checkbox-custom {
+            width: 28px;
+            height: 28px;
+            border: 2px solid #64b5f6;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .checkbox-custom.checked::after {
+            content: "\f00c";
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            color: #64b5f6;
+            font-size: 1.2rem;
+        }
+        
+        .check-label {
+            margin-left: 15px;
+            font-size: 1.1rem;
+            color: #bbdefb;
+        }
+        
+        /* 统计面板 */
+        .stats-panel {
+            background: rgba(20, 30, 60, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: auto;
+            border: 1px solid rgba(100, 181, 246, 0.2);
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .panel-title {
+            font-size: 1.4rem;
+            color: #64b5f6;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat-card {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin: 10px 0;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-label {
+            color: #bbdefb;
+            font-size: 1rem;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 992px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .header {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .week-nav {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .training-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 左侧导航 -->
+        <div class="sidebar">
+            <div class="logo">
+                <h1><i class="fas fa-running"></i> 跑步训练计划</h1>
+                <p>12周专业训练打卡系统</p>
+            </div>
+            
+            <div class="nav-item active">
+                <i class="fas fa-home"></i>
+                <span>训练总览</span>
+            </div>
+            
+            <div class="nav-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span>训练日历</span>
+            </div>
+            
+            <div class="nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>数据统计</span>
+            </div>
+            
+            <div class="nav-item">
+                <i class="fas fa-utensils"></i>
+                <span>饮食计划</span>
+            </div>
+            
+            <div class="nav-item">
+                <i class="fas fa-cog"></i>
+                <span>系统设置</span>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-title">训练进度</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="main-progress" style="width: 35%"></div>
+                </div>
+                <div class="progress-stats">
+                    <span>第1周</span>
+                    <span>完成35%</span>
+                </div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-title">本周进度</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="week-progress" style="width: 65%"></div>
+                </div>
+                <div class="progress-stats">
+                    <span>7天</span>
+                    <span>完成4天</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <div class="header">
+                <div class="week-title">第1周训练计划</div>
+                <div class="week-nav">
+                    <button class="nav-btn"><i class="fas fa-chevron-left"></i> 上一周</button>
+                    <button class="nav-btn">下一周 <i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+            
+            <div class="training-grid">
+                <!-- 周一 -->
+                <div class="day-card">
+                    <div class="card-header">
+                        <div class="day-title">周一</div>
+                        <div class="day-type">力量训练</div>
+                    </div>
+                    
+                    <div class="training-block">
+                        <div class="training-icon"><i class="fas fa-dumbbell"></i></div>
+                        <div class="training-details">
+                            <div class="training-time">18:00 - 18:30</div>
+                            <div class="training-desc">力量训练：高抬腿、深蹲、俯卧撑、平板支撑、弓步蹲、波比跳</div>
+                        </div>
+                    </div>
+                    
+                    <div class="training-block">
+                        <div class="training-icon"><i class="fas fa-stopwatch"></i></div>
+                        <div class="training-details">
+                            <div class="training-time">训练时长：25分钟</div>
+                            <div class="training-desc">循环训练2-3组，组间休息30秒</div>
+                        </div>
+                    </div>
+                    
+                    <div class="check-container">
+                        <div class="checkbox-custom checked"></div>
+                        <div class="check-label">标记为已完成</div>
+                    </div>
+                </div>
+                
+                <!-- 周二 -->
+                <div class="day-card">
+                    <div class="card-header">
+                        <div class="day-title">周二</div>
+                        <div class="day-type">短距离跑步</div>
+                    </div>
+                    
+                    <div class="training-block">
+                        <div class="training-icon"><i class="fas fa-running"></i></div>
+                        <div class="training-details">
+                            <div class="training-time">06:30 - 07:10</div>
+                            <div class="training-desc">短距离慢跑：1.5 km（轻松配速）</div>
+                        </div>
+                    </div>
+                    
+                    <div class="training-block">
+                        <div class="training-icon"><i class="fas fa-shoe-prints"></i></div>
+                        <div class="training-details">
+                            <div class="training-time">跑步要点：</div>
+                            <div class="training-desc">保持能说话的速度，注意呼吸节奏</div>
+                        </div>
+                    </div>
+                    
+                    <div class="check-container">
+                        <div class="checkbox-custom checked"></div>
+                        <div class="check-label">标记为已完成</div>
+                    </div>
+                </div>
+                
+                <!-- 周三 -->
+                <div class="day-card">
+                    <div class="card-header">
+                        <div class="day-title">周三</div>
+                        <div class="day-type">力量训练</div>
+                    </div>
+                    
+                    <div class="training-block">
+                        <div class="training-icon"><i class="fas fa-dumbbell"></i></div>
+                        <div class="training-details">
+                            <div class="training-time">18:00 - 18:30</div>
+                            <div class="training-desc">力量训练：高抬腿、深蹲、俯卧撑、平板支撑、弓步蹲、波比跳</div>
+                        </div>
+                    </div>
+                    
+                    <div class="training-block">
+                        <div class="training-icon"><i class="fas fa-heartbeat"></i></div>
+                        <div class="training-details">
+                            <div class="training-time">训练建议：</div>
+                            <div class="training-desc">注意动作标准，避免受伤</div>
+                        </div>
+                    </div>
+                    
+                    <div class="check-container">
+                        <div class="checkbox-custom"></div>
+                        <div class="check-label">标记为已完成</div>
+                    </div>
+                </div>
+                
+                <!-- 周四 -->
+                <div class="day-card">
+                    <div class="card-header">
+                        <div class="day-title">周四</div>
+                        <div class="day-type">间歇训练</div>
+                    </div>
+                    
+                    <div class="training-block">
+                        <div class="training-icon"><i class="fas fa-tachometer-alt"></i></div>
+                        <div class="training-details">
+                            <div class="training-time">06:30 - 07:10</div>
+                            <div class="training-desc">间歇跑：400m慢 + 200m快 × 4组</div>
+                        </div>
+                    </div>
+                    
+                    <div class="training-block">
+                        <div class="training-icon"><i class="fas fa-exchange-alt"></i></div>
+                        <div class="training-details">
+                            <div class="training-time">组间休息：</div>
+                            <div class="training-desc">慢跑或步行200米恢复</div>
+                        </div>
+                    </div>
+                    
+                    <div class="check-container">
+                        <div class="checkbox-custom"></div>
+                        <div class="check-label">标记为已完成</div>
+                    </div>
+                </div>
+                
+                <!-- 周五 -->
+                <div class="day-card">
+                    <div class="card-header">
+                        <div class="day-title">周五</div>
+                        <div class="day-type">力量恢复</div>
+                    </div>
+                    
+                    <div class="training-block">
+                        <div class="training-icon"><i class="fas fa-dumbbell"></i></div>
+                        <div class="training-details">
+                            <div class="training-time">18:00 - 18:30</div>
+                            <div class="training-desc">力量训练：可减少波比跳次数，做主动恢复</div>
+                        </div>
+                    </div>
+                    
+                    <div class="training-block">
+                        <div class="training-icon"><i class="fas fa-hands-helping"></i></div>
+                        <div class="training-details">
+                            <div class="training-time">恢复建议：</div>
+                            <div class="training-desc">适当拉伸，为长跑日做准备</div>
+                        </div>
+                    </div>
+                    
+                    <div class="check-container">
+                        <div class="checkbox-custom"></div>
+                        <div class="check-label">标记为已完成</div>
+                    </div>
+                </div>
+                
+                <!-- 周六 -->
+                <div class="day-card">
+                    <div class="card-header">
+                        <div class="day-title">周六</div>
+                        <div class="day-type">长距离跑步</div>
+                    </div>
+                    
+                    <div class="training-block">
+                        <div class="training-icon"><i class="fas fa-road"></i></div>
+                        <div class="training-details">
+                            <div class="training-time">17:30 - 18:30</div>
+                            <div class="training-desc">长距离慢跑：2 km（全程能说话）</div>
+                        </div>
+                    </div>
+                    
+                    <div class="training-block">
+                        <div class="training-icon"><i class="fas fa-utensils"></i></div>
+                        <div class="training-details">
+                            <div class="training-time">补给建议：</div>
+                            <div class="training-desc">跑后30分钟内补充水分和少量主食</div>
+                        </div>
+                    </div>
+                    
+                    <div class="check-container">
+                        <div class="checkbox-custom"></div>
+                        <div class="check-label">标记为已完成</div>
+                    </div>
+                </div>
+                
+                <!-- 周日 -->
+                <div class="day-card">
+                    <div class="card-header">
+                        <div class="day-title">周日</div>
+                        <div class="day-type">休息/恢复</div>
+                    </div>
+                    
+                    <div class="training-block">
+                        <div class="training-icon"><i class="fas fa-bed"></i></div>
+                        <div class="training-details">
+                            <div class="training-time">全天</div>
+                            <div class="training-desc">完全休息或进行轻度活动</div>
+                        </div>
+                    </div>
+                    
+                    <div class="training-block">
+                        <div class="training-icon"><i class="fas fa-walking"></i></div>
+                        <div class="training-details">
+                            <div class="training-time">可选活动：</div>
+                            <div class="training-desc">快走、骑行或体姿拉伸（08:30-09:00）</div>
+                        </div>
+                    </div>
+                    
+                    <div class="check-container">
+                        <div class="checkbox-custom"></div>
+                        <div class="check-label">标记为已完成</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 统计面板 -->
+            <div class="stats-panel">
+                <div class="panel-header">
+                    <div class="panel-title">训练统计</div>
+                    <button class="nav-btn">导出数据 <i class="fas fa-download"></i></button>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-calendar-check"></i>
+                        <div class="stat-value">4</div>
+                        <div class="stat-label">本周完成天数</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <i class="fas fa-road"></i>
+                        <div class="stat-value">7.5</div>
+                        <div class="stat-label">本周总里程 (km)</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <i class="fas fa-stopwatch"></i>
+                        <div class="stat-value">3:45</div>
+                        <div class="stat-label">平均配速 (min/km)</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <i class="fas fa-fire"></i>
+                        <div class="stat-value">1,850</div>
+                        <div class="stat-label">消耗卡路里</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 交互功能
+        document.addEventListener('DOMContentLoaded', function() {
+            // 导航项点击事件
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    navItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // 打卡功能
+            const checkboxes = document.querySelectorAll('.checkbox-custom');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('click', function() {
+                    this.classList.toggle('checked');
+                    updateProgress();
+                });
+            });
+            
+            // 周导航按钮
+            const prevBtn = document.querySelector('.nav-btn:nth-child(1)');
+            const nextBtn = document.querySelector('.nav-btn:nth-child(2)');
+            const weekTitle = document.querySelector('.week-title');
+            
+            let currentWeek = 1;
+            
+            prevBtn.addEventListener('click', function() {
+                if(currentWeek > 1) {
+                    currentWeek--;
+                    weekTitle.textContent = `第${currentWeek}周训练计划`;
+                    updateWeekDisplay();
+                }
+            });
+            
+            nextBtn.addEventListener('click', function() {
+                if(currentWeek < 12) {
+                    currentWeek++;
+                    weekTitle.textContent = `第${currentWeek}周训练计划`;
+                    updateWeekDisplay();
+                }
+            });
+            
+            // 更新周显示
+            function updateWeekDisplay() {
+                // 这里可以添加根据周数更新训练内容的逻辑
+            }
+            
+            // 更新进度
+            function updateProgress() {
+                const checkedBoxes = document.querySelectorAll('.checkbox-custom.checked').length;
+                const weekProgress = (checkedBoxes / 7) * 100;
+                document.getElementById('week-progress').style.width = `${weekProgress}%`;
+                
+                // 更新统计面板
+                document.querySelector('.stat-value:nth-child(2)').textContent = checkedBoxes;
+            }
+        });
+    </script>
+</body>
+</html>
